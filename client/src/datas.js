@@ -18,7 +18,7 @@ function Datas() {
   return (
     <div className="App container">
       <Link to = "/createData" className='btn btn-success'>AppData</Link>
-      {/* <Link to = "/upload" className='btn btn-info'>Upload</Link> */}
+      <Link to = "/checkData" className='btn btn-info'>CheckData</Link>
       <h1>Query Data</h1>
       <div className='table'>
         <thead>

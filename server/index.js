@@ -106,6 +106,53 @@ app.get('/getData', (req, res) => {
     });
   });
   
+  app.get('/checkData', (req, res) => {
+    const queryA = 'SELECT id,reference, time, amount, ccy, purpose, fromMember,fromUser,fromAccount,toType,toAccount,toMember FROM transactions';
+    const queryB = 'SELECT id,reference, time, amount, ccy, purpose, fromMember,fromUser,fromAccount,toType,toAccount,toMember FROM test';
+  
+    const results = {
+      matching_records: [],
+      different_records: []
+    };
+  
+    // Query data from database A
+    db.query(queryA, (errA, dataA) => {
+      if (errA) {
+        console.error('Error querying data from database A:', errA);
+        res.status(500).json({ error: 'Error querying data from database A' });
+        return;
+      }
+  
+      // Query data from database B
+      db.query(queryB, (errB, dataB) => {
+        if (errB) {
+          console.error('Error querying data from database B:', errB);
+          res.status(500).json({ error: 'Error querying data from database B' });
+          return;
+        }
+  
+        // Compare the data
+        dataA.forEach(rowA => {
+          const matchingRow = dataB.find(rowB => rowB.id === rowA.id);
+  
+          if (matchingRow) {
+            results.matching_records.push(dataB.find(rowB => rowB.id === rowA.id));
+          } else {
+            results.different_records.push(rowA);
+          }
+        });
+  
+        const missingRowsInB = dataA.filter(rowA => !dataB.some(rowB => rowB.id === rowA.id));
+        missingRowsInB.forEach(rowA => {
+          results.different_records.push(rowA);
+        });
+  
+        res.status(200).json(results);
+      });
+    });
+  });
+  
+  
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
